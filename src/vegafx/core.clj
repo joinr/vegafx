@@ -1,3 +1,5 @@
+;;Derived from original work by Chris Neurnberger
+;;https://gist.github.com/cnuernber/25e14a8b3a56c52faa8874afe5954ef8
 (ns vegafx.core
   (:import [javafx.application Platform]
            [javafx.beans.value ChangeListener]

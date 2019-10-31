@@ -1,0 +1,56 @@
+#+TITLE: VEGAFX (a very simple renderer for vega/lite specs)
+* Purpose
+Why should anyone have to spin up a webserver just to render plots?
+We have JavaFX. We have webviews.  Let's combine them.
+
+** Headless rendering
+Uses the webview, plus some js scripts, to help communicate when charts are loaded
+and to emit svg/png/html.  Since .snapshot doesn't work with hidden
+components, we can't use it for saving images.  We also prefer to have
+all the exacting image details from Vega....so we just use Vega and tell
+it to give us an image.  Clojure captures the result and spits it to
+a target file.
+** Optional Visual Rendering as a Webview Component
+We can still (and probably want to) render this to an interactive
+JFX webview for use in other applications (e.g. plotting stuff).  We can
+do this to.  We need to separate this out into a separate Vega component,
+but for now visuals happen per-plot, creating a new stage and webview each time.
+
+* Usage
+#+BEGIN_SRC clojure
+(require '[vegafx.core :as vfx])
+(def test-spec {"$schema" "https://vega.github.io/schema/vega-lite/v2.0.json"
+                  "data" {"values" [{"a" "A","b" 100}
+                                    {"a" "B","b" 55}
+                                    {"a" "C","b" 43}
+                                    {"a" "D","b" 91}
+                                    {"a" "E","b" 81}
+                                    {"a" "F","b" 53}
+                                    {"a" "G","b" 19}
+                                    {"a" "H","b" 87}
+                                    {"a" "I","b" 52}]}
+                  "mark" "bar"
+                  "encoding" {"x" {"field" "a", "type" "ordinal"}
+                              "y" {"field" "b", "type" "quantitative"}}
+                  "background" "white"})
+
+;;These will all render without showing the webpage.
+(vfx/vega->image test-spec "the-image")
+(vfx/vega->image test-spec "the-image" :format :svg)
+(vfx/vega->html  test-spec "the-page")
+;;you'll get a javafx view of the plot.
+(vfx/vega->image test-spec "another-image" :show? true)
+;;Just render the plot, no spitting image...
+(vfx/vega-lite test-spec :show? true)
+
+(defn test-batch []
+  (let [colors ["red" "white" "blue"]]
+    (doseq [c colors]
+      (let [spec (assoc test-spec "background" c)
+            tgt  (str "./examples/" c)]
+        (println [:spitting c])
+        (vfx/vega->image spec tgt)
+        (vfx/vega->image spec tgt :format :svg)
+        (vfx/vega->html  spec tgt)))))
+#+END_SRC
+

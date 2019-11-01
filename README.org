@@ -54,3 +54,26 @@ but for now visuals happen per-plot, creating a new stage and webview each time.
         (vfx/vega->html  spec tgt)))))
 #+END_SRC
 
+* JavaFX Versions
+This lib was built against JavaFX 8, of which there isn't an easily acquired
+OpenJFX lib for all platforms.  If you have oracle JDK 8, it includes JavaFX
+automatically.  The only other JDK that does this (for Java 8), is Azul Systems
+Zulu JDK Community Edition.  Ensuring JavaFX is available for other Java 8 JDK's is
+an exercise for the reader.
+
+If you are using this with Java 11, it should work, but you'll need a different
+profile.  Borrowing from fn-fx's setup, we have an :openjfx11 profile.
+You can alternately modify project.clj to use whatever your system is 
+running as the default.
+
+#+BEGIN_SRC bash
+#use openjfx 11 dependencies
+lein with-profile :openjfx11 repl
+#install locally with the openjfx deps.
+lein with-profile :openjfx11 install
+#use whatever JavaFX is provided - typical for Java 8
+lein repl
+#install assuming JavaFX is provided
+lein install
+#+END_SRC
+

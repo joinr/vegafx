@@ -122,3 +122,11 @@ For convenience, you can explore the examples using the `vega-example`, `list-ex
 ;;You'll see the images spit out in ./examples/vega
 (ex/batch-samples)
 #+END_SRC
+
+
+* Todo
+- Prefer .loadContent instead of .load, maybe.
+- Get vegaembed actions (export, view source, view in editor) working
+  - Requires getting popup windows working [described here](https://stackoverflow.com/questions/16370622/webview-not-opening-the-popup-window-in-javafx)
+- Revisit context menu to provide additional features
+  - Live screenshots, for interactive analysis (copy/paste)

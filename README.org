@@ -54,6 +54,21 @@ but for now visuals happen per-plot, creating a new stage and webview each time.
         (vfx/vega->html  spec tgt)))))
 #+END_SRC
 
+There is support for vega themes as well (WIP to ensure dark theme compatibility...):
+#+BEGIN_SRC clojure
+(require '[vegafx [core :as vfx] [config :as config]])
+;;you can either bind a global options map
+;;in vegafx.core/*options*, or pass :options args to client functions.
+(defn theme-batch []
+  (doseq [t config/themes]
+    (let [tgt  (str "./examples/" t)]
+      (binding [vfx/*options* (assoc vfx/*options* "theme" t)]
+        (println [:spitting t])
+        (vfx/vega->image test-spec tgt)
+        (vfx/vega->image test-spec tgt :format :svg)
+        (vfx/vega->html  test-spec tgt)))))
+#+END_SRC
+
 * JavaFX Versions
 This lib was built against JavaFX 8, of which there isn't an easily acquired
 OpenJFX lib for all platforms.  If you have oracle JDK 8, it includes JavaFX

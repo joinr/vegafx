@@ -13,6 +13,14 @@
   (:require [clojure.java.io :as io]
             [cheshire.core :as cheshire]))
 
+;;looking at a better way to thread options, this is bush league.
+(def default-opts
+  {"background" "#fff" ;;ensure a solid background or else we get black/transparent.
+   "theme"      "default"
+   "actions"    true})
+
+(def ^:dynamic *options* default-opts)
+
 ;;quickie translated  from https://stackoverflow.com/a/23979996
 (defn b64->image-bytes ^bytes [data]
   (let [[type image]  (clojure.string/split  data #",")
@@ -62,31 +70,29 @@
     (run-now
      (.executeScript ^WebEngine e script))))
 
-#_(defn vega-script
-  [edn]
-  (str "vegaEmbed(\"#vis\","
-       (cheshire/generate-string edn)
-       ",{\"actions\":false})"))
-
 (def embed (slurp (clojure.java.io/resource "vegaembed.js")))
 
-(defn vega-script [spec]
-  (let [spec (if (string? spec)
+(defn vega-script [spec & {:keys [options] :or {options *options*}}]
+  (let [options (cheshire/generate-string options)
+        spec (if (string? spec)
                spec
                (cheshire/generate-string spec))]
-  (clojure.string/replace embed "var spec = \"THE-SPEC\""
-     (str "var spec = " spec))))
+    (-> embed
+        (clojure.string/replace  "var options = {}"
+                                 (str "var options = " options))
+        (clojure.string/replace  "var spec = \"THE-SPEC\""
+                                (str "var spec = " spec)))))
 
 (defn static-script [script]
   (clojure.string/replace script "noisy = true" "noisy = false"))
 
-(defn chart-html [edn]
+(defn chart-html [edn & {:keys [options] :or {options *options*}}]
   (clojure.string/replace
    (slurp (io/resource "index.html"))
    "</body>"
    (clojure.string/join \newline ["</body>"
                                   "<script>"
-                                  (static-script (vega-script edn))
+                                  (static-script (vega-script edn :options options))
                                   "</script>"])))
 
 ;; engine.onAlert = new EventHandler<WebEvent<String>>()
@@ -128,13 +134,14 @@
   {:alert :image-ready
    :data msg})
 
+;;This a tad off...doesn't include legend.
 (defn dimensions
   [engine id]
   {:height (.executeScript engine "document.getElementById('vis').offsetHeight")
    :width (.executeScript engine "document.getElementById('vis').offsetWidth")})
 
 (defn vega-lite
-  [edn & {:keys [show?]}]
+  [edn & {:keys [show? options] :or {options *options*}}]
   (run-now
    (let [web-view (WebView.)
          engine (.getEngine web-view)
@@ -148,7 +155,7 @@
             (changed [this ob old new]
               ;; Wait until the page has loaded.
               (when (= new Worker$State/SUCCEEDED)
-                (.executeScript engine (vega-script edn))
+                (.executeScript engine (vega-script edn :options options))
                 (let [{:keys [height width]} (dimensions engine "vis")]
                   (.setPrefSize web-view
                                 (+ *buffer* width)
@@ -168,50 +175,23 @@
      {:ready-promise ready
       :image-url     image-url})))
 
-;;may still be useful?
-(defn take-snapshot
-  []
-  (run-later
-   (try
-     (let [web-view @*web-view*
-           jfx-img (.snapshot web-view
-                              (javafx.scene.SnapshotParameters.)
-                              nil)
-           buf-img (SwingFXUtils/fromFXImage jfx-img nil)]
-       (ImageIO/write buf-img "PNG" (java.io.File. "test.png")))
-     (catch Throwable e
-       (println e)))))
 
 (defn capture-image [& {:keys [format] :or {format :png}}]
   (assert #{:png :svg "png" "svg"} format)
   (eval-js (str "getImage('" (name format) "')")))
 
-#_(defn render-and-save [spec & {:keys [show?]}]
-    (let [plot (vega-lite spec :show? show?)
-          _    @(:ready-promise plot)]
-      (take-snapshot)))
-
-(defn vega->image [spec tgt & {:keys [show? format] :or {format :png}}]
-  (let [{:keys [ready-promise image-url ]} (vega-lite spec :show? show?)
+(defn vega->image [spec tgt & {:keys [show? format options]
+                               :or {format :png
+                                    options *options*}}]
+  (let [{:keys [ready-promise image-url ]} (vega-lite spec :show? show? :options options)
         _    @ready-promise
         _   (capture-image  :format format)]
     (case format
       :svg (spit (str tgt ".svg") @image-url)
       (spit-image @image-url tgt))))
 
-(defn vega->html [spec tgt]
-  (spit (str tgt ".html") (chart-html spec)))
-
-;;temp
-(defn test-batch []
-  (let [colors ["red" "white" "blue"]]
-    (doseq [c colors]
-      (let [spec (assoc test-spec "background" c)
-            tgt  (str "./examples/" c)]
-        (println [:spitting c])
-        (vega->image spec tgt)
-        (vega->image spec tgt :format :svg)
-        (vega->html  spec tgt)))))
+(defn vega->html [spec tgt & {:keys [options] :or {options *options*}}]
+  (spit (str tgt ".html") (chart-html spec :options options)))
 
 (comment
 
@@ -236,3 +216,23 @@
   (def res (vega-lite test-spec))
   (spit-image (-> res :image-url deref) "blah")
   )
+
+
+;;may still be useful?
+#_(defn take-snapshot
+    []
+    (run-later
+     (try
+       (let [web-view @*web-view*
+             jfx-img (.snapshot web-view
+                                (javafx.scene.SnapshotParameters.)
+                                nil)
+             buf-img (SwingFXUtils/fromFXImage jfx-img nil)]
+         (ImageIO/write buf-img "PNG" (java.io.File. "test.png")))
+       (catch Throwable e
+         (println e)))))
+
+#_(defn render-and-save [spec & {:keys [show?]}]
+    (let [plot (vega-lite spec :show? show?)
+          _    @(:ready-promise plot)]
+      (take-snapshot)))

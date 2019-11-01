@@ -7,7 +7,7 @@
   "data": [
     {
       "name": "source",
-      "url": "https://raw.githubusercontent.com/vega/vega/master/docs/data/cars.json",
+      "url": "data/cars.json",
       "transform": [
         {
           "type": "filter",

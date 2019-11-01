@@ -92,3 +92,33 @@ lein repl
 lein install
 #+END_SRC
 
+* Vega Examples
+These are cripped from the official vega repo for testing purposes.
+The difference is I included urls to point at the repo for data,
+where the repo typically points to a local file in /data/something...
+Note: these are fully interacive plots (performance is actually
+quite good).  The images emitted are just snapshots of the plot prior
+to interaction.  It may take a moment to pull down the datasets, but
+shouldn't be more than a couple of seconds with a good connection.
+
+The specifications live in ./examples/specs.  All but the "projection"
+example works, since it uses nonstandard vega addons with D3 cartographic
+projections.
+
+#+BEGIN_SRC clojure
+(require '[vegafx.example :as ex])
+(vfx/vega->image (ex/remote-data (slurp "./examples/specs/country-unemployment.vg.json")) "vega-country-unemployment" :show? true)
+(vfx/vega->image (ex/remote-data (slurp "./examples/specs/scatter.vg.json")) "vega-scatter" :show? true)
+(vfx/vega->image (ex/remote-data (slurp "./examples/specs/scatter-plot-null-values.vg.json")) "vega-scatter-plot-null-values" :show? true)
+#+END_SRC
+
+For convenience, you can explore the examples using the `vega-example`, `list-examples`, `batch-examples` from the
+`vegafx.example` namespace. 
+#+BEGIN_SRC clojure
+(require '[vegafx.example :as ex])
+(ex/vega-sample "arc-diagram")
+;;batch-samples will run them all, and may take a 30s or so depending on download
+;;speed since we're grabbing data from the vega github at runtime vs. caching it.
+;;You'll see the images spit out in ./examples/vega
+(ex/batch-samples)
+#+END_SRC

@@ -1,6 +1,7 @@
 (ns vegafx.example
   (:require [vegafx.core :as vfx]
-            [vegafx.config :as config]))
+            [vegafx.config :as config]
+            [clojure.java.io :as io]))
 
 (def test-spec {"$schema" "https://vega.github.io/schema/vega-lite/v2.0.json"
                 "data" {"values" [{"a" "A","b" 100}
@@ -37,3 +38,25 @@
         (vfx/vega->image test-spec tgt)
         (vfx/vega->image test-spec tgt :format :svg)
         (vfx/vega->html  test-spec tgt)))))
+
+(defn remote-data [spec]
+  (clojure.string/replace spec "data/" "https://raw.githubusercontent.com/vega/vega/master/docs/data/"))
+
+(defn vega-example [name & {:keys [show? root] :or {show? true root "./examples/vega/"}}]
+  (vfx/vega->image (remote-data (slurp (str "./examples/specs/" name ".vg.json")))
+                   (str root name) :show? show?))
+
+;;requires a non-standard vega extension using d3.
+(def invalid-examples #{"projections"})
+(defn list-examples []
+  (->> (io/file "./examples/specs/")
+       file-seq
+       (filter (complement invalid-examples))
+       (drop 1)
+       (map #(clojure.string/replace (.getName %) ".vg.json" ""))))
+
+(defn batch-examples []
+  (doseq [x (list-examples)]
+    (println [:rendering x])
+    (try (vega-example x :show? false)
+         (catch Exception e (println [:example x :failed-to-render!])))))

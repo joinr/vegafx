@@ -17,7 +17,7 @@
   "data": [
     {
       "name": "movies",
-      "url": "https://raw.githubusercontent.com/vega/vega/master/docs/data/movies.json",
+      "url": "data/movies.json",
       "transform": [
         {
           "type": "formula",

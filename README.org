@@ -81,6 +81,50 @@ profile.  Borrowing from fn-fx's setup, we have an :openjfx11 profile.
 You can alternately modify project.clj to use whatever your system is 
 running as the default.
 
+** Outdated Binary Distributions And Webview
+If you're installing a legacy java 8 binary distribution on an LTS platform,
+many are old and the webview rendering doesn't work with Vega and other libraries.
+
+For example, Ubuntu 16.06 LTS ships up to openjfx 8u60, and 18.08 has openjfx
+8u161 availble. Initial testing shows that at least the JDK bundled with
+openjdk-8-jdk under ubuntu 16.06 doesn't render correctly (really nothing renders,
+and there's a broader problem with other websites - it's an old bug from
+early versions of the webiew).
+
+In general, the ZuluFX distribution of opendjk + openjfx appears to work
+across platforms.  I haven't tested other distributions to date (or
+newer opendjk distributions).
+
+** SDKMan 
+I used [sdkman](https://sdkman.io/usage) to grab and install the zulu + openjfx
+distribution.  I had to uninstall the default ubuntu 16.06 openjdk-8-jdk package
+
+#+BEGIN_SRC bash
+sudo apt-get remove openjdk-8-jdk
+#+END_SRC
+
+Then I followed the sdkman install instructions.
+After installation, I picked from the "java" candidates:
+8.0.202-zulufx, via
+#+BEGIN_SRC bash
+sdk install java 8.0.202-zulufx
+#+END_SRC
+
+After trying out all the other java 8 JDK's, the only other OpenJDK alternative
+that includes OpenJFX8 AND works is the "liberica" JDK by Bellsoft.
+
+#+BEGIN_SRC bash
+sdk install java 8.0.232-librca
+#+END_SRC
+
+This distribution also renders everything correctly, and is a possible option
+for legacy Java 8 users (aside from Oracl's Java 8 SE, which I have not tested).
+
+* JavaFX 11 / OpenJFX 11
+If you're on Java 11, you can use an alternate profile
+to grab the dependencies, and not worry about messing with
+boutique JDK configurations we see.
+
 #+BEGIN_SRC bash
 #use openjfx 11 dependencies
 lein with-profile :openjfx11 repl

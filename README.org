@@ -116,7 +116,86 @@ For convenience, you can explore the examples using the `vega-example`, `list-ex
 `vegafx.example` namespace. 
 #+BEGIN_SRC clojure
 (require '[vegafx.example :as ex])
+
+(vec (ex/list-examples))
+#_["airport-connections"
+   "annual-temperature"
+   "arc-diagram"
+   "area-chart"
+   "bar-chart"
+   "barley-trellis-plot"
+   "beeswarm-plot"
+   "binned-scatter-plot"
+   "box-plot"
+   "brushing-scatter-plots"
+   "budget-forecasts"
+   "circle-packing"
+   "connected-scatter-plot"
+   "contour-plot"
+   "county-unemployment"
+   "crossfilter-flights"
+   "distortion-comparison"
+   "donut-chart"
+   "dorling-cartogram"
+   "dot-plot"
+   "earthquakes"
+   "edge-bundling"
+   "error-bars"
+   "falkensee-population"
+   "force-directed-layout"
+   "global-development"
+   "grouped-bar-chart"
+   "heatmap"
+   "histogram-null-values"
+   "histogram"
+   "horizon-graph"
+   "hypothetical-outcome-plots"
+   "interactive-legend"
+   "job-voyager"
+   "line-chart"
+   "loess-regression"
+   "nested-bar-chart"
+   "overview-plus-detail"
+   "parallel-coordinates"
+   "pi-monte-carlo"
+   "pie-chart"
+   "population-pyramid"
+   "probability-density"
+   "projections"
+   "quantile-dot-plot"
+   "quantile-quantile-plot"
+   "radial-plot"
+   "radial-tree-layout"
+   "regression"
+   "reorderable-matrix"
+   "scatter-plot-null-values"
+   "scatter-plot"
+   "stacked-area-chart"
+   "stacked-bar-chart"
+   "stock-index-chart"
+   "sunburst"
+   "timelines"
+   "top-k-plot-with-others"
+   "top-k-plot"
+   "tree-layout"
+   "treemap"
+   "u-district-cuisine"
+   "violin-plot"
+   "volcano-contours"
+   "weekly-temperature"
+   "wheat-and-wages"
+   "wheat-plot"
+   "wind-vectors"
+   "word-cloud"
+   "world-map"
+   "zoomable-scatter-plot"
+   "zoomable-world-map"]
+
+;;These are some complex/interactive examples
 (ex/vega-example "arc-diagram")
+(ex/vega-example "word-cloud")
+(ex/vega-example "world-map")
+(ex/vega-example "airport-connections")
 ;;batch-samples will run them all, and may take a 30s or so depending on download
 ;;speed since we're grabbing data from the vega github at runtime vs. caching it.
 ;;You'll see the images spit out in ./examples/vega
@@ -160,3 +239,5 @@ has to be bound to false (e.g. nil won't work due to JS).
 - Revisit context menu to provide additional features
   - Live screenshots, for interactive analysis (copy/paste)
   - Somewhat handled by vegaembed export options.
+- Static embedded (or at least cached) vega source inlined during templating.
+- Decompose the plot component for easier composition in JavaFX scenes.

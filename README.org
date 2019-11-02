@@ -116,7 +116,7 @@ For convenience, you can explore the examples using the `vega-example`, `list-ex
 `vegafx.example` namespace. 
 #+BEGIN_SRC clojure
 (require '[vegafx.example :as ex])
-(ex/vega-sample "arc-diagram")
+(ex/vega-example "arc-diagram")
 ;;batch-samples will run them all, and may take a 30s or so depending on download
 ;;speed since we're grabbing data from the vega github at runtime vs. caching it.
 ;;You'll see the images spit out in ./examples/vega
@@ -128,5 +128,8 @@ For convenience, you can explore the examples using the `vega-example`, `list-ex
 - Prefer .loadContent instead of .load, maybe.
 - Get vegaembed actions (export, view source, view in editor) working
   - Requires getting popup windows working [described here](https://stackoverflow.com/questions/16370622/webview-not-opening-the-popup-window-in-javafx)
+  - If you click on the export button (the elipsis ...) and select export to png or svg, you'll get an error
+    about not finding vegaEmbed, which is due to this.
+    - Current solution: don't use the GUI to export, use the vega->image function instead.
 - Revisit context menu to provide additional features
   - Live screenshots, for interactive analysis (copy/paste)

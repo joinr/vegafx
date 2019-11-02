@@ -123,13 +123,40 @@ For convenience, you can explore the examples using the `vega-example`, `list-ex
 (ex/batch-samples)
 #+END_SRC
 
+* Exporting From the GUI Using VegaEmbed Controls
+By default, the rendered plot will have the VegaEmbed actions menu to the right, which
+shows as a little button with an ellipses (...).
+- Clicking on this brings up a context menu for saving as png, svg, viewing source, 
+  and opening the page in the Vega Editor.
+  - All of these are currently supported, except for saving as SVG isn't rendering as expected.
+    - We get a blob:null/, with some B64 encoded text.  Wondering if this is supposed to be an svg
+      file....either way it's not rendering in the webview.
+  - I "think" viewing in the vega editor requires you to be online (could bundle it in the future...).
+
+The "copy to clipboard" option is somewhat compelling for folks, since it's trivial for
+users to leverage the copy-and-paste paradigm to populate things like presentations.
+
+- Future iterations will make this easier, e.g. a context menu on the main plot (regardless
+of VegaEmbed controls).
+
+You can override showing these actions by messing with the options.  The simplest way is
+to bind the global options in the `vegafx.core/*options*` map like so:
+
+#+BEGIN_SRC clojure
+(binding [vegafx.core/*options* (assoc vegafx.core/*options* "actions" false)] 
+   (vega-example "word-cloud"))
+#+END_SRC
+
+I'll probably provide a convenience macro in short order.  Note: "actions" currently
+has to be bound to false (e.g. nil won't work due to JS).
 
 * Todo
 - Prefer .loadContent instead of .load, maybe.
-- Get vegaembed actions (export, view source, view in editor) working
-  - Requires getting popup windows working [described here](https://stackoverflow.com/questions/16370622/webview-not-opening-the-popup-window-in-javafx)
-  - If you click on the export button (the elipsis ...) and select export to png or svg, you'll get an error
-    about not finding vegaEmbed, which is due to this.
-    - Current solution: don't use the GUI to export, use the vega->image function instead.
+- +Get vegaembed actions (export, view source, view in editor) working+ [done]
+  - +Requires getting popup windows working [described here](https://stackoverflow.com/questions/16370622/webview-not-opening-the-popup-window-in-javafx)+
+  - +If you click on the export button (the elipsis ...) and select export to png or svg, you'll get an error+
+    +about not finding vegaEmbed, which is due to this.+
+    - +Current solution: don't use the GUI to export, use the vega->image function instead.+
 - Revisit context menu to provide additional features
   - Live screenshots, for interactive analysis (copy/paste)
+  - Somewhat handled by vegaembed export options.

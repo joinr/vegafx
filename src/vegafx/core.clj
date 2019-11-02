@@ -140,6 +140,27 @@
   {:height (.executeScript engine "document.getElementById('vis').offsetHeight")
    :width (.executeScript engine "document.getElementById('vis').offsetWidth")})
 
+(defn stage-view [^WebView web-view ]
+  (let [^WebEngine engine      (.getEngine web-view)
+        {:keys [height width]} (dimensions engine "vis")]
+    (.setPrefSize web-view
+                  (+ *buffer* width)
+                  (+ *buffer* height))
+    (doto (Stage.)
+      (.setScene (Scene. web-view)))))
+
+(defn add-popup-handler! [^WebView web-view]
+  (let [^WebEngine engine (.getEngine web-view)]
+    (.setCreatePopupHandler engine
+      (reify javafx.util.Callback
+        (call [this p]
+          (let [^Stage   stage (Stage. javafx.stage.StageStyle/UTILITY)
+                ^WebView wv2   (WebView.)]
+            (doto stage
+              (.setScene (Scene. wv2))
+              (.show))
+            (.getEngine wv2)))))))
+
 (defn vega-lite
   [edn & {:keys [show? options] :or {options *options*}}]
   (run-now
@@ -155,21 +176,20 @@
             (changed [this ob old new]
               ;; Wait until the page has loaded.
               (when (= new Worker$State/SUCCEEDED)
-                (.executeScript engine (vega-script edn :options options))
-                (let [{:keys [height width]} (dimensions engine "vis")]
-                  (.setPrefSize web-view
-                                (+ *buffer* width)
-                                (+ *buffer* height))
-                  (doto (Stage.)
-                    (.setScene (Scene. web-view))
-                    (show))))))))
+                (.executeScript engine (vega-script edn :options options)))))))
      (.setOnAlert engine ^javafx.event.EventHandler
-                  (on-ready (fn [msg]
-                              (let [k (alert-handler msg)]
-                                (case (:alert k)
-                                  :ready       (deliver ready msg)
-                                  :image-ready (deliver image-url msg)
-                                  :generic     (deliver image-url msg))))))
+        (on-ready (fn [msg]
+                    (let [k (alert-handler msg)]
+                      (case (:alert k)
+                        ;;when the plot is ready, we can get an accurate
+                        ;;size for the stage and notify others.
+                        :ready       (do (-> web-view
+                                             stage-view
+                                             show)
+                                         (add-popup-handler! web-view)
+                                         (deliver ready msg))
+                        :image-ready (deliver image-url msg)
+                        :generic     (deliver image-url msg))))))
      (reset! *web-view* web-view)
      (.loadContent engine (slurp (io/resource "index.html")))
      {:ready-promise ready

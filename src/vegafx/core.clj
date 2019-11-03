@@ -9,7 +9,8 @@
            [javafx.scene.web WebView WebEvent WebEngine]
            [javafx.stage Stage]
            [javafx.embed.swing SwingFXUtils]
-           [javax.imageio ImageIO])
+           [javax.imageio ImageIO]
+           [java.util Base64])
   (:require [clojure.java.io :as io]
             [cheshire.core :as cheshire]))
 
@@ -21,11 +22,12 @@
 
 (def ^:dynamic *options* default-opts)
 
-;;quickie translated  from https://stackoverflow.com/a/23979996
+(defn base-64-string->bytes ^bytes [^String s]
+  (.decode ^java.util.Base64$Decoder (Base64/getMimeDecoder)  s))
+
 (defn b64->image-bytes ^bytes [data]
   (let [[type image]  (clojure.string/split  data #",")
-        ^bytes image-bytes (javax.xml.bind.DatatypeConverter/parseBase64Binary
-                            ^String image)]
+        ^bytes image-bytes (base-64-string->bytes ^String image)]
     {:type type
      :buffer image-bytes}))
 

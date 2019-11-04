@@ -95,6 +95,11 @@ In general, the ZuluFX distribution of opendjk + openjfx appears to work
 across platforms.  I haven't tested other distributions to date (or
 newer opendjk distributions).
 
+*** Java SE 1.8.0_221 (e.g. recent)
+Even recent Oracl JREs (tested on W10) exhibit similar problems
+loading vega scripts.  Currently looking for a work around, since this
+is a large target platform.
+
 ** SDKMan 
 I used [sdkman](https://sdkman.io/usage) to grab and install the zulu + openjfx
 distribution.  I had to uninstall the default ubuntu 16.06 openjdk-8-jdk package

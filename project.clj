@@ -7,6 +7,8 @@
                  [org.mozilla/rhino "1.7.11"]
                  [cheshire "5.9.0"]
                  [net.arnx/nashorn-promise "0.1.2"]
+                 ;;trying rhino.
+                 [org.mozilla/rhino "1.7.11"]
                  [org.apache.xmlgraphics/batik-transcoder "1.11"]
                  [org.apache.xmlgraphics/batik-codec "1.11"]]
   :profiles {;;cribbed from fn-fx

@@ -115,3 +115,4 @@
                                                (do (deliver res :timed-out)
                                                    (future-cancel task))))]
       (println [f @res]))))
+  ([] (headless-batch-vl (list-vl-examples))))

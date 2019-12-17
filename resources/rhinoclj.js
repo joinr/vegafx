@@ -1,23 +1,15 @@
 //We just want a simple way to interop with
 //js objects from clojure...
 
-var compiler = Packages.clojure.lang.compiler;
-
-function evalClojure(form){
-    return Packages.clojure.lang.compiler.eval(form);
-}
-
-function readClojure(txt){
-    return Packages.clojure.lang.RT.readString(txt);
-}
-
+//cljPromise is defined outside from java.
+//just a wrapper around clojure.core/promise
 function clojurePromise(){
-    return evalClojure(readClojure("(promise)"));
+    return cljPromise.invoke();
 }
 
 //we can communicate using promises...
 function deliver(p, result){
-    p.invoke(result);
+    return p.invoke(result);
 }
 
 //vega3

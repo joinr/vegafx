@@ -151,6 +151,11 @@
     (doto (Stage.)
       (.setScene (Scene. web-view)))))
 
+(defn view! [^WebView web-view ]
+  (let [^WebEngine engine      (.getEngine web-view)]
+    (doto (Stage.)
+      (.setScene (Scene. web-view)))))
+
 (defn add-popup-handler! [^WebView web-view]
   (let [^WebEngine engine (.getEngine web-view)]
     (.setCreatePopupHandler engine
@@ -196,6 +201,24 @@
      (.loadContent engine (slurp (io/resource "index.html")))
      {:ready-promise ready
       :image-url     image-url})))
+
+(defn vega-lite-from
+  [edn & {:keys [show? options index] :or {show? true options *options*}}]
+  (run-now
+   (let [web-view (WebView.)
+         engine (.getEngine web-view)
+         show   (fn [^Stage x] (if show? (doto x (.show)) x))]
+     (Platform/setImplicitExit false)
+     (.setOnAlert engine ^javafx.event.EventHandler
+                  (on-ready (fn [msg]
+                              (-> web-view
+                                  stage-view
+                                  show))))
+     (reset! *web-view* web-view)
+     (.load engine index #_(slurp (or index (io/resource "index.html"))))
+     (-> web-view
+         stage-view
+         view!))))
 
 
 (defn capture-image [& {:keys [format] :or {format :png}}]

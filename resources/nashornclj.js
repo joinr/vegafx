@@ -22,21 +22,31 @@ function deliver(p, result){
     p.invoke(result);
 }
 
-//vega3
+warn = true;
+//vega5
 function specToView(spec){
-    var view = new vega.View(vega.parse(spec))
-        .renderer('none')
-        .initialize();
+    var view = new vega.View(vega.parse(spec),{renderer: 'none'});
+    view.logLevel(vega.Debug);
     return view;
 }
 
+var lastsvg = "nil";
+
+function renderViewNow(view){
+    return view.toSVG();
+}
+
 function viewToSVG(view){
+    print("viewtosvg");
     var result = clojurePromise();
-    view.toSVG()
-        .then(function(svg) {
+    view.toSVG().then(function(svg) {
+        df.debug(0,"tosvg","tosvg");
+            print('computed svg');
+            lastsvg = svg;
             deliver(result, svg);
-        })
-        .catch(function(err) {
+    }).catch(function(err) {
+        df.debug(0,"tosvg","tosvg");
+            print(err);
             deliver(result,'<svg>err</svg>');
             console.error(err); });
     return result;

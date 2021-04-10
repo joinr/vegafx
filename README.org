@@ -132,9 +132,9 @@ boutique JDK configurations we see.
 
 #+BEGIN_SRC bash
 #use openjfx 11 dependencies
-lein with-profile :openjfx11 repl
+lein with-profile +openjfx11 repl
 #install locally with the openjfx deps.
-lein with-profile :openjfx11 install
+lein with-profile +openjfx11 install
 #use whatever JavaFX is provided - typical for Java 8
 lein repl
 #install assuming JavaFX is provided
